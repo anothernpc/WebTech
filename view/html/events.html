@@ -23,19 +23,14 @@
   <section class="events">
     <h2>Upcoming Events</h2>
     <div class="event-list">
+      {{foreach $events as $event}}
       <div class="event">
-        <h3>Concert: Rock Night</h3>
-        <p>Date: 2023-12-15</p>
-        <p>Price: $50</p>
+        <h3>{{this.name}}</h3>
+        <p>Date: {{this.date}}</p>
+        <p>Price: {{this.price}}</p>
         <button onclick="addToCart(1)">Add to Cart</button>
       </div>
-      <div class="event">
-        <h3>Theater: Hamlet</h3>
-        <p>Date: 2023-11-20</p>
-        <p>Price: $30</p>
-        <button onclick="addToCart(1)">Add to Cart</button>
-      </div>
-      <!-- Add more events as needed -->
+      {{endforeach}}
     </div>
   </section>
 </main>
