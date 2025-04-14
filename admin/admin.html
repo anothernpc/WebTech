@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="file-manager">
+    <h1>File Manager</h1>
+    <div id="breadcrumb"></div>
+    <div id="directory-view"></div>
+    <div class="controls">
+        <label for="upload">Upload a File:</label>
+        <input type="file" id="upload">
+        <button id="upload-button">Upload</button>
+    </div>
+    <div id="file-preview" data-path="">
+        <h3>File Preview</h3>
+        <textarea id="file-content" disabled></textarea>
+        <button id="edit-button">Edit</button>
+        <button id="save-button" class="hidden">Save</button>
+        <button id="delete-button" class="hidden">Delete</button>
+    </div>
+</div>
+<script src="adminscript.js"></script>
+</body>
+</html>
