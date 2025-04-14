@@ -1,9 +1,6 @@
 <?php
 // Configuration
 define('UPLOAD_DIR', '/var/www/WebTech/uploads/');
-define('ALLOWED_EXTENSIONS', ['txt', 'pdf', 'jpg', 'jpeg', 'png', 'gif', 'json', 'ini', 'csv', 'html', 'css', 'js']);
-define('MAX_FILE_SIZE', 10 * 1024 * 1024);
-
 class AdminService
 {
     public function deleteFile(string $filePath): array
@@ -208,23 +205,6 @@ class AdminService
             ];
         } else {
             throw new Exception('Failed to save file');
-        }
-    }
-
-    private function formatFileSize($bytes): string
-    {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        } elseif ($bytes > 1) {
-            return $bytes . ' bytes';
-        } elseif ($bytes == 1) {
-            return '1 byte';
-        } else {
-            return '0 bytes';
         }
     }
 

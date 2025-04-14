@@ -1,0 +1,13 @@
+<If "%{REQUEST_URI} =~ m#^/admin(/.*)?$#">
+AuthType Basic
+AuthName "Restricted Files"
+AuthBasicProvider file
+AuthUserFile "/var/www/passwd/passwords"
+Require user varechka
+</If>
+
+RewriteEngine on
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php

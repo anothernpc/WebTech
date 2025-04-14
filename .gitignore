@@ -1,0 +1,30 @@
+# Ignoring sensitive files
+.env
+
+# Ignoring IDE settings
+.idea/
+*.iml
+
+# Ignoring vendor directory (used in PHP projects)
+vendor/
+
+# Ignoring node_modules directory (used in JavaScript projects)
+node_modules/
+
+# Ignoring compiled files
+*.log
+*.cache
+*.bak
+*.min.js
+*.min.css
+
+# Ignoring coverage reports
+coverage/
+reports/
+
+# Ignoring temporary files
+*.tmp
+*.swp
+
+# Ignoring upload directories
+storage/

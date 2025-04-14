@@ -15,16 +15,6 @@ class AdminController
         $this->adminService = new AdminService();
     }
 
-    public function addFile(array $input): void
-    {
-        echo json_encode($this->adminService->addFile($input));
-    }
-
-    public function changeFile(array $input): void
-    {
-        echo json_encode($this->adminService->changeFile($input));
-    }
-
     public function deleteFile(array $input): void
     {
         try {
