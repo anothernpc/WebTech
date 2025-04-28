@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 class Router {
-    private $routes = [];
+    private array $routes = [];
 
     public function add(string $path, string $controllerMethod): void
     {
@@ -16,6 +17,14 @@ class Router {
         $this->add('/admin/file/saveContent', 'AdminController/saveFileContent');
         $this->add('/admin/file/preview', 'AdminController/previewFile');
         $this->add('/admin/file/delete', 'AdminController/deleteFile');
+
+        $this->add('/events', 'EventsController/listEvents');
+        $this->add('/events/view', 'EventsController/showEvent');
+        $this->add('/events/add-to-cart', 'EventsController/addToCart');
+        $this->add('/cart', 'CartController/viewCart');
+        $this->add('/cart/remove', 'CartController/removeFromCart');
+        $this->add('/cart/count', 'CartController/getCartCount');
+        $this->add('/cart/data', 'CartController/getCartData');
     }
 
     public function dispatch(string $requestUri): void

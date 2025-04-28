@@ -11,31 +11,27 @@
   <h1>TicketMaster</h1>
   <nav>
     <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="events.html">Events</a></li>
-      <li><a href="about.html">About Us</a></li>
-      <li><a href="contact.html">Contact</a></li>
-      <li><a href="cart.html">Cart</a></li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/events">Events</a></li>
+      <li><a href="/about">About Us</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <li><a href="/cart">Cart (<span class="cart-count">0</span>)</a></li>
     </ul>
   </nav>
 </header>
 <main>
   <section class="events">
     <h2>Upcoming Events</h2>
-    <div class="event-list">
-      {{foreach $events as $event}}
-      <div class="event">
-        <h3>{{this.name}}</h3>
-        <p>Date: {{this.date}}</p>
-        <p>Price: {{this.price}}</p>
-        <button onclick="addToCart(1)">Add to Cart</button>
-      </div>
-      {{endforeach}}
+    <div id="events-container">
+      <!-- Template content will be injected here by PHP -->
+    </div>
+    <div id="event-details-container" style="display:none">
+      <!-- Single event view will appear here -->
     </div>
   </section>
 </main>
 <footer>
-  <p>&copy; 2025 TicketMaster. All rights reserved.</p>
+  <p>&copy; <span id="current-year"></span> TicketMaster. All rights reserved.</p>
 </footer>
 <script src="../js/script.js"></script>
 </body>

@@ -1,0 +1,53 @@
+<div class="cart-view">
+    <h1>Your Shopping Cart</h1>
+
+    {{ $cart_not_empty = !empty($events); }}
+    @if($cart_not_empty)
+    <table class="cart-items">
+        <thead>
+        <tr>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach($events as $event)
+        <tr>
+            <td>{{ echo htmlspecialchars($event['title']); }}</td>
+            <td>{{ echo date('M j, Y', strtotime($event['date'])); }}</td>
+            <td>${{ echo number_format($event['price'], 2); }}</td>
+            <td>{{ echo $event['quantity']; }}</td>
+            <td>${{ echo number_format($event['subtotal'], 2); }}</td>
+            <td>
+                <button class="remove-from-cart"
+                        data-event-id="{{ echo $event['id']; }}">
+                    Remove
+                </button>
+            </td>
+        </tr>
+        @endforeach
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4" class="text-right">Total:</td>
+            <td>${{ echo number_format($total, 2); }}</td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <div class="cart-actions">
+        <a href="/events" class="continue-shopping">Continue Shopping</a>
+        <a href="/checkout" class="checkout-button">Proceed to Checkout</a>
+    </div>
+    @else
+    <div class="empty-cart">
+        <p>Your cart is currently empty.</p>
+        <a href="/events" class="browse-events">Browse Events</a>
+    </div>
+    @endif
+</div>

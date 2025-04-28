@@ -1,6 +1,6 @@
 <?php
 
-
+declare(strict_types=1);
 use templates\TemplateEngine;
 
 require_once __DIR__ . '/../services/AdminService.php';

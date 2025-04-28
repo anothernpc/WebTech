@@ -1,6 +1,8 @@
 <?php
+declare(strict_types=1);
 // Configuration
 define('UPLOAD_DIR', '/var/www/WebTech/uploads/');
+
 class AdminService
 {
     public function deleteFile(string $filePath): array

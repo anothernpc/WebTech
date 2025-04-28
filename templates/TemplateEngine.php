@@ -14,9 +14,9 @@ class TemplateEngine
         $templateContent = file_get_contents($templatePath);
         $templateContent = str_replace('{{', '<?php', $templateContent);
         $templateContent = str_replace('}}', '?>', $templateContent);
-        $templateContent = preg_replace('/@{if\(\s*(.+?)\s*\)/', '<?php if($1): ?>', $templateContent);
+        $templateContent = preg_replace('/@if\(\s*(.+?)\s*\)/', '<?php if($1): ?>', $templateContent);
+        $templateContent = str_replace('@else', '<?php else: ?>', $templateContent);
         $templateContent = str_replace('@endif', '<?php endif; ?>', $templateContent);
-        $templateContent = str_replace('@else', '<?php else ?>', $templateContent);
         $templateContent = preg_replace('/@foreach\(\s*(.+?)\s*\)/', '<?php foreach($1): ?>', $templateContent);
         $templateContent = str_replace('@endforeach', '<?php endforeach; ?>', $templateContent);
 

@@ -11,27 +11,44 @@
     <h1>TicketMaster</h1>
     <nav>
         <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="events.html">Events</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li><a href="cart.html">Cart</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/events">Events</a></li>
+            <li><a href="/about">About Us</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/cart">Cart (<span class="cart-count">0</span>)</a></li>
         </ul>
     </nav>
 </header>
-<main>
+<main id="main-content">
     <section class="cart">
         <h2>Your Cart</h2>
         <div class="cart-items">
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+
+
+                </tbody>
+            </table>
         </div>
         <div class="cart-total">
-            <h3>Total: $0</h3>
-            <button onclick="checkout()">Checkout</button>
+            <h3>Total: $<span class="cart-total">0.00</span></h3>
+            <button id="checkout-button">Checkout</button>
         </div>
     </section>
 </main>
 <footer>
-    <p>&copy; 2023 TicketMaster. All rights reserved.</p>
+    <p>&copy; <span id="current-year"></span> TicketMaster. All rights reserved.</p>
 </footer>
 <script src="../js/script.js"></script>
 </body>

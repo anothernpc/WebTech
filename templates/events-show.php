@@ -1,0 +1,28 @@
+<div class="event-detail">
+    <div class="event-header">
+        <h2><?= htmlspecialchars($event['title']) ?></h2>
+        <div class="event-meta">
+            <span class="event-date"><?= $event['date'] ?></span>
+            <span class="event-price">$<?= number_format($event['price'], 2) ?></span>
+        </div>
+    </div>
+
+    <div class="event-description">
+        <p><?= nl2br(htmlspecialchars($event['description'])) ?></p>
+    </div>
+
+    <div class="event-actions">
+        <button class="add-to-cart"
+                data-event-id="<?= $event['id'] ?>"
+                data-event-title="<?= htmlspecialchars($event['title']) ?>">
+            Add to Cart
+        </button>
+        <a href="/events" class="back-to-events">Back to Events</a>
+    </div>
+    {{ $not_empty_image = !empty($event['image']) }}
+    @if($not_empty_image)
+        <div class="event-image">
+            <img src="/uploads/events/<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>">
+        </div>
+    @endif
+</div>

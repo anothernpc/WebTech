@@ -1,102 +1,121 @@
-const events = [
-    {
-        id: 1,
-        name: "Concert: Rock Night",
-        date: "2023-12-15",
-        price: 50
-    },
-    {
-        id: 2,
-        name: "Theater: Hamlet",
-        date: "2023-11-20",
-        price: 30
-    },
-    {
-        id: 3,
-        name: "Comedy Show: Laugh Out Loud",
-        date: "2023-10-25",
-        price: 20
-    }
-];
 
-let cart = [];
+let currentEventId = null;
 
-function displayEvents() {
-    const eventList = document.querySelector('.event-list');
-    if (eventList) {
-        eventList.innerHTML = ''; // Clear existing content
-        events.forEach(event => {
-            const eventDiv = document.createElement('div');
-            eventDiv.className = 'event';
-            eventDiv.innerHTML = `
-                <h3>${event.name}</h3>
-                <p>Date: ${event.date}</p>
-                <p>Price: $${event.price}</p>
-                <button onclick="addToCart(${event.id})">Add to Cart</button>
-            `;
-            eventList.appendChild(eventDiv);
-        });
-    }
-}
+document.addEventListener("DOMContentLoaded", function() {
 
-function addToCart(eventId) {
-    const event = events.find(e => e.id === eventId);
-    if (event) {
-        const cartItem = cart.find(item => item.id === eventId);
-        if (cartItem) {
-            cartItem.quantity += 1;
-        } else {
-            cart.push({ ...event, quantity: 1 });
+    fetchAndInject('/events', 'events-container');
+
+    updateCartCount();
+
+    document.addEventListener("click", function(event) {
+        // Event clicks
+        if (event.target.closest(".event-card")) {
+            const eventId = event.target.closest(".event-card").dataset.eventId;
+            fetchAndInject(`/events/view?id=${eventId}`, 'event-details-container');
         }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCart();
-        alert(`${event.name} added to cart!`);
-    }
+
+        if (event.target.classList.contains("add-to-cart")) {
+            const eventId = event.target.dataset.eventId;
+            fetch(`/events/add-to-cart?event_id=${eventId}`, { method: 'POST' })
+                .then(handleResponse)
+                .then(() => updateCartCount());
+        }
+
+        if (event.target.classList.contains("remove-from-cart")) {
+            const eventId = event.target.dataset.eventId;
+            fetch(`/cart/remove?event_id=${eventId}`, { method: 'POST' })
+                .then(handleResponse)
+                .then(() => {
+                    updateCartCount();
+                    if (window.location.pathname === '/cart') {
+                        fetchAndInject('/cart', 'main-content');
+                    }
+                });
+        }
+
+        if (event.target.closest('a[href="/cart"]')) {
+            event.preventDefault();
+            fetchAndInject('/cart', 'main-content');
+        }
+
+        // Checkout button
+        if (event.target.id === "checkout-button") {
+            fetch('/checkout', { method: 'POST' })
+                .then(handleResponse)
+                .then(() => window.location.href = "/order-confirmation");
+        }
+    });
+});
+
+function fetchAndInject(url, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    fetch(url)
+        .then(response => response.text())
+        .then(html => container.innerHTML = html)
+        .catch(error => console.error(`Error loading ${url}:`, error));
 }
 
-function updateCart() {
-    const cartItems = document.querySelector('.cart-items');
-    const cartTotal = document.querySelector('.cart-total h3');
-    if (cartItems && cartTotal) {
-        cartItems.innerHTML = ''; // Clear existing content
-        let total = 0;
-        cart.forEach((item, index) => {
-            const cartItemDiv = document.createElement('div');
-            cartItemDiv.className = 'cart-item';
-            cartItemDiv.innerHTML = `
-                <h3>${item.name} (${item.quantity}x)</h3>
-                <p>Date: ${item.date}</p>
-                <p>Price: $${item.price} each</p>
-                <p>Total: $${item.price * item.quantity}</p>
-                <button onclick="removeFromCart(${index})">Remove</button>
-            `;
-            cartItems.appendChild(cartItemDiv);
-            total += item.price * item.quantity;
-        });
-        cartTotal.textContent = `Total: $${total}`;
-    }
+function updateCartCount() {
+    fetch('/cart/count')
+        .then(response => response.json())
+        .then(data => {
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = data.count;
+            });
+        })
+        .catch(error => console.error("Error updating cart count:", error));
+}
+function handleResponse(response) {
+    if (!response.ok) throw new Error('Request failed');
+    return response.json();
 }
 
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCart();
+document.addEventListener("DOMContentLoaded", function() {
+    fetchAndInjectEvents();
+
+    updateCartCount();
+
+
+    document.addEventListener("click", function(event) {
+        if (event.target.closest(".event-card")) {
+            const eventId = event.target.closest(".event-card").dataset.eventId;
+            fetchAndInject(`/events/view?id=${eventId}`, 'event-details-container');
+        }
+
+        if (event.target.classList.contains("add-to-cart")) {
+            const eventId = event.target.dataset.eventId;
+            fetch(`/events/add-to-cart?event_id=${eventId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartCount();
+                        alert('Added to cart!');
+                    }
+                });
+        }
+    });
+});
+
+function fetchAndInjectEvents() {
+    const container = document.getElementById("events-container");
+    if (!container) return;
+
+    fetch('/events')
+        .then(response => response.text())
+        .then(html => {
+            container.innerHTML = html;
+            document.querySelectorAll(".event-card").forEach(card => {
+                card.addEventListener("click", function() {
+                    const eventId = this.dataset.eventId;
+                    fetchAndInject(`/events/view?id=${eventId}`, 'event-details-container');
+                });
+            });
+        })
+        .catch(error => console.error("Error loading events:", error));
 }
 
-function checkout() {
-    if (cart.length === 0) {
-        alert('Your cart is empty!');
-        return;
-    }
-    alert('Thank you for your purchase!');
-    cart = [];
-    localStorage.removeItem('cart');
-    updateCart();
-}
-function init() {
-    cart = JSON.parse(localStorage.getItem('cart')) || [];
-    displayEvents();
-    updateCart();
-}
-
-window.onload = init;
