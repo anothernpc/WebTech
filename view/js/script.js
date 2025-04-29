@@ -82,22 +82,3 @@ function handleResponse(response) {
     if (!response.ok) throw new Error('Request failed');
     return response.json();
 }
-
-function fetchAndInjectEvents() {
-    const container = document.getElementById("events-container");
-    if (!container) return;
-
-    fetch('/events')
-        .then(response => response.text())
-        .then(html => {
-            container.innerHTML = html;
-            document.querySelectorAll(".event-card").forEach(card => {
-                card.addEventListener("click", function () {
-                    const eventId = this.dataset.eventId;
-                    fetchAndInject(`/events/view?id=${eventId}`, 'event-details-container');
-                });
-            });
-        })
-        .catch(error => console.error("Error loading events:", error));
-}
-
