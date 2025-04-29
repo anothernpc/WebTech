@@ -17,12 +17,12 @@
                 data-event-title="<?= htmlspecialchars($event['title']) ?>">
             Add to Cart
         </button>
-        <a href="/events" class="back-to-events">Back to Events</a>
+        <a href="events.html" class="back-to-events">Back to Events</a>
     </div>
     {{ $not_empty_image = !empty($event['image']) }}
     @if($not_empty_image)
-        <div class="event-image">
-            <img src="/uploads/events/<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>">
-        </div>
+    <div class="event-image">
+        <img src="/view/images/<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>">
+    </div>
     @endif
 </div>

@@ -10,7 +10,10 @@
         <p class="event-description">{{ echo htmlspecialchars($event['description']); }}</p>
 
         <div class="event-actions">
-            <a href="/events/view?id={{ echo $event['id']; }}" class="view-details">View Details</a>
+            <button class="view-details"
+                    data-event-id="{{ echo $event['id']; }}">
+                View Details
+            </button>
             <button class="add-to-cart"
                     data-event-id="{{ echo $event['id']; }}"
                     data-event-title="{{ echo htmlspecialchars($event['title']); }}">

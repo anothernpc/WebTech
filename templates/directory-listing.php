@@ -8,16 +8,17 @@
     </div>
 
     @foreach($directories as $directory)
-        <div class="directory">
-            <a href="?path={{ echo urlencode($path . '/' . $directory); }}">[DIR] {{ echo htmlspecialchars($directory); }}</a>
-        </div>
+    <div class="directory">
+        <a href="?path={{ echo urlencode($path . '/' . $directory); }}">[DIR] {{ echo htmlspecialchars($directory);
+            }}</a>
+    </div>
     @endforeach
 
     @foreach($files as $file)
-        <div class="file">
-            <a href="/admin/file/preview?path={{ echo urlencode($path . '/' . $file); }}">
-                {{ echo htmlspecialchars($file); }}
-            </a>
-        </div>
+    <div class="file">
+        <a href="/admin/file/preview?path={{ echo urlencode($path . '/' . $file); }}">
+            {{ echo htmlspecialchars($file); }}
+        </a>
+    </div>
     @endforeach
 </div>

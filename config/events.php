@@ -7,7 +7,7 @@ return [
         'description' => 'An amazing night of rock music',
         'date' => '2025-12-15 20:00',
         'price' => 50.00,
-        'image' => '/images/rock.jpg'
+        'image' => 'rock.jpeg'
     ],
     [
         'id' => 2,
@@ -15,7 +15,7 @@ return [
         'description' => 'Smooth jazz under the stars',
         'date' => '2025-11-20 19:30',
         'price' => 35.00,
-        'image' => '/images/jazz.jpg'
+        'image' => 'jazz.jpeg'
     ],
     [
         'id' => 3,
@@ -23,6 +23,6 @@ return [
         'description' => 'Laugh your night away',
         'date' => '2025-10-25 21:00',
         'price' => 25.00,
-        'image' => '/images/comedy.jpg'
+        'image' => 'comedy.jpeg'
     ]
 ];

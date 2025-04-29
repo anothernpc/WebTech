@@ -3,35 +3,68 @@ declare(strict_types=1);
 
 use templates\TemplateEngine;
 
-class CartService {
+class CartService
+{
     private EventsService $eventsService;
+    private string $cartFile;
+    private array $cart = [];
 
-    public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $_SESSION['cart'] = $_SESSION['cart'] ?? [];
+    public function __construct()
+    {
         $this->eventsService = new EventsService(new TemplateEngine());
+        $this->cartFile = __DIR__ . '/../config/cart.php';
+        $this->loadCart();
     }
 
-    public function addToCart(int $eventId, int $quantity = 1): bool {
+    private function loadCart(): void
+    {
+        if (file_exists($this->cartFile)) {
+            $this->cart = include $this->cartFile;
+        } else {
+            $this->cart = [];
+            $this->saveCart();
+        }
+    }
+
+    private function saveCart(): void
+    {
+        $content = "<?php\nreturn " . var_export($this->cart, true) . ";\n";
+
+        if (!is_writable(dirname($this->cartFile))) {
+            throw new RuntimeException('Config directory is not writable');
+        }
+
+        $result = file_put_contents($this->cartFile, $content, LOCK_EX);
+
+        if ($result === false) {
+            throw new RuntimeException('Failed to save cart data');
+        }
+    }
+
+    public function addToCart(int $eventId, int $quantity = 1): bool
+    {
         if ($this->eventsService->getEvent($eventId)) {
-            $_SESSION['cart'][$eventId] = ($_SESSION['cart'][$eventId] ?? 0) + $quantity;
-            return true;
-        }
-        return false;
-    }
-    public function removeItem(int $eventId): bool {
-        if (isset($_SESSION['cart'][$eventId])) {
-            unset($_SESSION['cart'][$eventId]);
+            $this->cart[$eventId] = ($this->cart[$eventId] ?? 0) + $quantity;
+            $this->saveCart();
             return true;
         }
         return false;
     }
 
-    public function getCartItems(): array {
+    public function removeItem(int $eventId): bool
+    {
+        if (isset($this->cart[$eventId])) {
+            unset($this->cart[$eventId]);
+            $this->saveCart();
+            return true;
+        }
+        return false;
+    }
+
+    public function getCartItems(): array
+    {
         $items = [];
-        foreach ($_SESSION['cart'] as $eventId => $quantity) {
+        foreach ($this->cart as $eventId => $quantity) {
             if ($event = $this->eventsService->getEvent((int)$eventId)) {
                 $items[] = [
                     'id' => $event['id'],
@@ -46,13 +79,22 @@ class CartService {
         return $items;
     }
 
-    public function getCartTotal(): float {
+    public function getCartTotal(): float
+    {
         return array_reduce($this->getCartItems(),
             fn($total, $item) => $total + $item['subtotal'],
             0.0
         );
     }
-    public function getCartCount(): int {
-        return array_sum($_SESSION['cart']);
+
+    public function getCartCount(): int
+    {
+        return array_sum($this->cart);
+    }
+
+    public function clearCart(): void
+    {
+        $this->cart = [];
+        $this->saveCart();
     }
 }

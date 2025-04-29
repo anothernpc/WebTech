@@ -41,13 +41,13 @@
     </table>
 
     <div class="cart-actions">
-        <a href="/events" class="continue-shopping">Continue Shopping</a>
+        <a href="events.html" class="continue-shopping">Continue Shopping</a>
         <a href="/checkout" class="checkout-button">Proceed to Checkout</a>
     </div>
     @else
     <div class="empty-cart">
         <p>Your cart is currently empty.</p>
-        <a href="/events" class="browse-events">Browse Events</a>
+        <a href="events.html" class="browse-events">Browse Events</a>
     </div>
     @endif
 </div>

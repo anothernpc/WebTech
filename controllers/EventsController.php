@@ -1,21 +1,25 @@
 <?php
 declare(strict_types=1);
+
 use templates\TemplateEngine;
 
 require_once __DIR__ . '/../services/EventService.php';
 require_once __DIR__ . '/../templates/TemplateEngine.php';
 require_once __DIR__ . '/../services/CartService.php';
 
-class EventsController {
+class EventsController
+{
     private EventsService $eventsService;
     private CartService $cartService;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->eventsService = new EventsService(new TemplateEngine());
         $this->cartService = new CartService();
     }
 
-    public function listEvents(array $input): void {
+    public function listEvents(array $input): void
+    {
         $events = $this->eventsService->getUpcomingEvents();
         echo $this->eventsService->render('/var/www/WebTech/templates/events-list.php', [
             'events' => $events,
@@ -23,14 +27,15 @@ class EventsController {
         ]);
     }
 
-    public function showEvent(array $input): void {
-        if (empty($input['id'])) {
+    public function showEvent(array $input): void
+    {
+        if (empty($input['event_id'])) {
             http_response_code(400);
             echo "Missing event ID";
             return;
         }
 
-        $event = $this->eventsService->getEvent((int)$input['id']);
+        $event = $this->eventsService->getEvent((int)$input['event_id']);
         if (!$event) {
             http_response_code(404);
             echo "Event not found";
@@ -43,7 +48,8 @@ class EventsController {
         ]);
     }
 
-    public function addToCart(array $input): void {
+    public function addToCart(array $input): void
+    {
         if (empty($input['event_id'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Missing event ID']);
