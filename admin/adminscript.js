@@ -231,3 +231,6 @@ function clearPreview() {
     deleteButton.style.display = "none";
 }
 
+function saveFile(filePath){
+
+}

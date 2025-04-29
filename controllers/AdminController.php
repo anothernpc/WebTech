@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 use templates\TemplateEngine;
 
 require_once __DIR__ . '/../services/AdminService.php';
@@ -36,8 +37,7 @@ class AdminController
     {
         $response = $this->adminService->previewFile($input);
         if ($response['status'] === 'success') {
-            $templateEngine = new TemplateEngine();
-            echo $templateEngine->render('templates/file-preview.php', $response);
+            echo json_encode($response['content']);
         } else {
             echo json_encode($response);
         }
@@ -65,9 +65,6 @@ class AdminController
             echo json_encode($response);
         }
     }
-
-
-
 
     public function getFileContent(array $input): void
     {
