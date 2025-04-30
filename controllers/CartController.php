@@ -41,7 +41,7 @@ class CartController
     {
         $cartService = new CartService();
         $cartService->removeItem((int)$input['event_id']);
-        $this->getCartData($input); // Return updated cart data
+        $this->getCartData($input);
     }
 
     public function getCartCount(array $input): void
