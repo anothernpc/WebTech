@@ -1,11 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use templates\TemplateEngine;
-
 require_once __DIR__ . '/../services/CartService.php';
 require_once __DIR__ . '/../services/EventService.php';
-require_once __DIR__ . '/../templates/TemplateEngine.php';
+require_once __DIR__ . '/../TemplateEngine.php';
 
 class CartController
 {
@@ -20,7 +18,7 @@ class CartController
 
     public function viewCart(array $input): void
     {
-        echo $this->eventsService->render('/var/www/WebTech/templates/cart-view.php', [
+        echo $this->eventsService->render('/var/www/WebTech/templates/cart-view.html', [
             'events' => $this->cartService->getCartItems($this->eventsService),
             'total' => $this->cartService->getCartTotal($this->eventsService),
             'cartCount' => $this->cartService->getCartCount()

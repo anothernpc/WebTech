@@ -1,34 +1,101 @@
 <?php
 declare(strict_types=1);
 
-use templates\TemplateEngine;
-
+require_once __DIR__ . '/../model/EventEntity.php';
+require_once __DIR__ . '/../repository/EventRepository.php';
 class EventsService
 {
     private TemplateEngine $templateEngine;
     private mixed $events;
+    private EventRepository $eventRepository;
+    protected PDO $pdo;
 
     public function __construct(TemplateEngine $templateEngine)
     {
         $this->templateEngine = $templateEngine;
-        $this->events = require __DIR__ . '/../config/events.php';
+        //УБРАТЬ ПОТОМ ПАРОЛЬ!!!!
+        /*$this->pdo = new PDO(
+            "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_DATABASE']}",
+            $_ENV['DB_USERNAME'],
+            $_ENV['DB_PASSWORD']
+        );*/
+        $this->pdo = new PDO('mysql:host=localhost;dbname=ticketmasterDB', 'root', '12345');
+        $this->eventRepository = new EventRepository($this->pdo);
     }
 
-    public function getUpcomingEvents(): array
+    public function getAllEvents(): array
     {
-        return array_filter($this->events, function ($event) {
-            return strtotime($event['date']) >= time();
-        });
+        return $this->eventRepository->findAll();
+    }
+
+    public function getUpcomingEvents(int $limit = 10): array
+    {
+        return $this->eventRepository->findUpcomingEvents($limit);
+    }
+
+    public function searchEvents(string $query): array
+    {
+        return $this->eventRepository->findByTitle($query);
     }
 
     public function getEvent(int $id): ?array
     {
-        foreach ($this->events as $event) {
-            if ($event['id'] === $id) {
-                return $event;
-            }
+        $event = $this->eventRepository->find($id);
+
+        if ($event === null) {
+            return null;
         }
-        return null;
+
+        return [
+            'id' => $event->getId(),
+            'title' => $event->getTitle(),
+            'description' => $event->getDescription(),
+            'date' => $event->getDate(),
+            'price' => $event->getPrice(),
+            'image' => $event->getImage()
+        ];
+    }
+
+   public function createEvent(
+        string  $title,
+        string  $description,
+        string  $date,
+        int     $price,
+        ?string $image = null
+    ): EventEntity
+    {
+        $event = new EventEntity(null, $title, $description, $date, $price, $image);
+        $this->eventRepository->save($event);
+        return $event;
+    }
+
+    /*public function updateEvent(
+        int     $id,
+        string  $title,
+        string  $description,
+        string  $date,
+        int     $price,
+        ?string $image = null
+    ): bool
+    {
+        $event = $this->eventRepository->find($id);
+
+        if (!$event) {
+            throw new RuntimeException("Event with ID $id not found");
+        }
+
+        $event->setTitle($title);
+        $event->setDescription($description);
+        $event->setDate($date);
+        $event->setPrice($price);
+        $event->setImage($image);
+
+        return $this->eventRepository->save($event);
+    } */
+
+    public function deleteEvent(int $id): bool
+    {
+        return $this->eventRepository->delete($id);
     }
 
     public function render(string $template, array $data): string
@@ -36,3 +103,4 @@ class EventsService
         return $this->templateEngine->render($template, $data);
     }
 }
+

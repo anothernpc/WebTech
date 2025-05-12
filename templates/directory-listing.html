@@ -16,7 +16,7 @@
 
     @foreach($files as $file)
     <div class="file">
-        <a href="/admin/file/preview?path={{ echo urlencode($path . '/' . $file); }}">
+        <a href="WebTech/admin/file/preview?path={{ echo urlencode($path . '/' . $file); }}">
             {{ echo htmlspecialchars($file); }}
         </a>
     </div>

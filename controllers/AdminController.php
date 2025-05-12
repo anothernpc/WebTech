@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-use templates\TemplateEngine;
-
 require_once __DIR__ . '/../services/AdminService.php';
-require_once __DIR__ . '/../templates/TemplateEngine.php';
+require_once __DIR__ . '/../TemplateEngine.php';
 
 class AdminController
 {
@@ -60,7 +58,7 @@ class AdminController
 
         if ($response['status'] === 'success') {
             $templateEngine = new TemplateEngine();
-            echo $templateEngine->render('/var/www/WebTech/templates/directory-listing.php', $response);
+            echo $templateEngine->render('/var/www/WebTech/templates/directory-listing.html', $response);
         } else {
             echo json_encode($response);
         }

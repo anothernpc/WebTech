@@ -1,7 +1,7 @@
 <?php
 
 return [
-    [
+    /*[
         'id' => 1,
         'title' => 'Rock Concert',
         'description' => 'An amazing night of rock music',
@@ -24,5 +24,5 @@ return [
         'date' => '2025-10-25 21:00',
         'price' => 25.00,
         'image' => 'comedy.jpeg'
-    ]
+    ]*/
 ];

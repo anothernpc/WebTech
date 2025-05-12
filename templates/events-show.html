@@ -22,7 +22,7 @@
     {{ $not_empty_image = !empty($event['image']) }}
     @if($not_empty_image)
     <div class="event-image">
-        <img src="/view/images/<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>">
+        <img src="/WebTech/view/images/<?= $event['image'] ?>" alt="<?= htmlspecialchars($event['title']) ?>">
     </div>
     @endif
 </div>

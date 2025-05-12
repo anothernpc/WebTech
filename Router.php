@@ -10,21 +10,21 @@ class Router {
 
     public function registerFileManagerRoutes(): void
     {
-        $this->add('/admin/file/list', 'AdminController/listFiles');
-        $this->add('/admin/file/upload', 'AdminController/uploadFiles');
-        $this->add('/admin/file/download', 'AdminController/downloadFile');
-        $this->add('/admin/file/getContent', 'AdminController/getFileContent');
-        $this->add('/admin/file/saveContent', 'AdminController/saveFileContent');
-        $this->add('/admin/file/preview', 'AdminController/previewFile');
-        $this->add('/admin/file/delete', 'AdminController/deleteFile');
+        $this->add('/WebTech/admin/file/list', 'AdminController/listFiles');
+        $this->add('/WebTech/admin/file/upload', 'AdminController/uploadFiles');
+        $this->add('/WebTech/admin/file/download', 'AdminController/downloadFile');
+        $this->add('/WebTech/admin/file/getContent', 'AdminController/getFileContent');
+        $this->add('/WebTech/admin/file/saveContent', 'AdminController/saveFileContent');
+        $this->add('/WebTech/admin/file/preview', 'AdminController/previewFile');
+        $this->add('/WebTech/admin/file/delete', 'AdminController/deleteFile');
 
-        $this->add('/events', 'EventsController/listEvents');
-        $this->add('/events/view', 'EventsController/showEvent');
-        $this->add('/events/add-to-cart', 'EventsController/addToCart');
-        $this->add('/cart', 'CartController/viewCart');
-        $this->add('/cart/remove', 'CartController/removeFromCart');
-        $this->add('/cart/count', 'CartController/getCartCount');
-        $this->add('/cart/data', 'CartController/getCartData');
+        $this->add('/WebTech/events', 'EventsController/listEvents');
+        $this->add('/WebTech/events/view', 'EventsController/showEvent');
+        $this->add('/WebTech/events/add-to-cart', 'EventsController/addToCart');
+        $this->add('/WebTech/cart', 'CartController/viewCart');
+        $this->add('/WebTech/cart/remove', 'CartController/removeFromCart');
+        $this->add('/WebTech/cart/count', 'CartController/getCartCount');
+        $this->add('/WebTech/cart/data', 'CartController/getCartData');
     }
 
     public function dispatch(string $requestUri): void

@@ -7,7 +7,7 @@ Require user varechka
 </If>
 
 RewriteEngine on
-RewriteBase /
+RewriteBase /WebTech/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php

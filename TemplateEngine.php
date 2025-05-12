@@ -1,6 +1,5 @@
 <?php
-
-namespace templates;
+declare(strict_types=1);
 
 class TemplateEngine
 {

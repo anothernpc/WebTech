@@ -1,87 +1,76 @@
 <?php
 declare(strict_types=1);
 
-use templates\TemplateEngine;
+require_once __DIR__ . '/../model/CartEntity.php';
+require_once __DIR__ . '/../repository/CartRepository.php';
 
 class CartService
 {
     private EventsService $eventsService;
-    private string $cartFile;
-    private array $cart = [];
+    private CartRepository $cartRepository;
 
     public function __construct()
     {
         $this->eventsService = new EventsService(new TemplateEngine());
-        $this->cartFile = __DIR__ . '/../config/cart.php';
-        $this->loadCart();
-    }
-
-    private function loadCart(): void
-    {
-        if (file_exists($this->cartFile)) {
-            $this->cart = include $this->cartFile;
-        } else {
-            $this->cart = [];
-            $this->saveCart();
-        }
-    }
-
-    private function saveCart(): void
-    {
-        $content = "<?php\nreturn " . var_export($this->cart, true) . ";\n";
-
-        if (!is_writable(dirname($this->cartFile))) {
-            throw new RuntimeException('Config directory is not writable');
-        }
-
-        $result = file_put_contents($this->cartFile, $content, LOCK_EX);
-
-        if ($result === false) {
-            throw new RuntimeException('Failed to save cart data');
-        }
+        $pdo = new PDO(
+            "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_DATABASE']}",
+            $_ENV['DB_USERNAME'],
+            $_ENV['DB_PASSWORD']
+        );
+        $this->cartRepository = new CartRepository($pdo);
     }
 
     public function addToCart(int $eventId, int $quantity = 1): bool
     {
-        if ($this->eventsService->getEvent($eventId)) {
-            $this->cart[$eventId] = ($this->cart[$eventId] ?? 0) + $quantity;
-            $this->saveCart();
-            return true;
+        $event = $this->eventsService->getEvent($eventId);
+        if (!$event) {
+            return false;
         }
-        return false;
+
+        $existingItem = $this->cartRepository->findByTitle($event['title']);
+        if ($existingItem) {
+            $cartEntity = new CartEntity(
+                $existingItem[0]['id'],
+                $existingItem[0]['title'],
+                $existingItem[0]['date'],
+                (int)$existingItem[0]['price'],
+                (int)$existingItem[0]['quantity'] + $quantity,
+                (int)$existingItem[0]['price'] * ((int)$existingItem[0]['quantity'] + $quantity)
+            );
+            return $this->cartRepository->save($cartEntity);
+        }
+
+        $cartEntity = new CartEntity(
+            null,
+            $event['title'],
+            $event['date'],
+            (int)$event['price'],
+            $quantity,
+            (int)$event['price'] * $quantity
+        );
+
+        return $this->cartRepository->save($cartEntity);
     }
 
     public function removeItem(int $eventId): bool
     {
-        if (isset($this->cart[$eventId])) {
-            unset($this->cart[$eventId]);
-            $this->saveCart();
-            return true;
+        $event = $this->eventsService->getEvent($eventId);
+        if (!$event) {
+            return false;
         }
-        return false;
+
+        return $this->cartRepository->delete($event['id']);
     }
 
     public function getCartItems(): array
     {
-        $items = [];
-        foreach ($this->cart as $eventId => $quantity) {
-            if ($event = $this->eventsService->getEvent((int)$eventId)) {
-                $items[] = [
-                    'id' => $event['id'],
-                    'title' => $event['title'],
-                    'date' => $event['date'],
-                    'price' => $event['price'],
-                    'quantity' => $quantity,
-                    'subtotal' => $event['price'] * $quantity
-                ];
-            }
-        }
-        return $items;
+        return $this->cartRepository->findAll();
     }
 
     public function getCartTotal(): float
     {
-        return array_reduce($this->getCartItems(),
+        $items = $this->cartRepository->findAll();
+        return array_reduce($items,
             fn($total, $item) => $total + $item['subtotal'],
             0.0
         );
@@ -89,12 +78,18 @@ class CartService
 
     public function getCartCount(): int
     {
-        return array_sum($this->cart);
+        $items = $this->cartRepository->findAll();
+        return array_reduce($items,
+            fn($count, $item) => $count + $item['quantity'],
+            0
+        );
     }
 
     public function clearCart(): void
     {
-        $this->cart = [];
-        $this->saveCart();
+        $items = $this->cartRepository->findAll();
+        foreach ($items as $item) {
+            $this->cartRepository->delete($item['id']);
+        }
     }
 }

@@ -1,8 +1,8 @@
 const currentDirectory = '/var/www/WebTech';
 
 document.addEventListener("DOMContentLoaded", function () {
-    const initialPath = "/var/www/WebTech";
-    fetchDirectory(initialPath);
+    //const initialPath = "/var/www/WebTech";
+    fetchDirectory(currentDirectory);
 });
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("upload-button").addEventListener("click", uploadFiles);
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function fetchFileContent(filePath) {
-    const url = `/admin/file/preview?path=${encodeURIComponent(filePath)}`;
+    const url = `/file/preview?path=${encodeURIComponent(filePath)}`;
 
     fetch(url)
         .then(response => response.text())
@@ -86,7 +86,7 @@ function deleteFile(filePath) {
 
     const encodedPath = encodeURIComponent(filePath);
 
-    const url = `/admin/file/delete?path=${encodedPath}`;
+    const url = `/file/delete?path=${encodedPath}`;
 
     fetch(url, {
         method: "GET",
@@ -122,7 +122,7 @@ function uploadFiles() {
     const formData = new FormData();
     formData.append("file", file);
 
-    fetch("/admin/file/upload", {
+    fetch("/file/upload", {
         method: "POST",
         body: formData,
     })
@@ -143,7 +143,7 @@ function uploadFiles() {
 
 
 function fetchDirectory(path) {
-    const url = `/admin/file/list?path=${encodeURIComponent(path)}`;
+    const url = `file/list?path=${encodeURIComponent(path)}`;
 
     fetch(url)
         .then(response => response.text())
@@ -194,7 +194,7 @@ function addFileClickHandlers() {
 
 
 function fetchFilePreview(path) {
-    const url = `/admin/file/preview?path=${encodeURIComponent(path)}`;
+    const url = `file/preview?path=${encodeURIComponent(path)}`;
 
     fetch(url)
         .then(response => response.text()) // Expecting HTML

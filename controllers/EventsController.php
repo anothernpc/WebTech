@@ -1,10 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use templates\TemplateEngine;
-
 require_once __DIR__ . '/../services/EventService.php';
-require_once __DIR__ . '/../templates/TemplateEngine.php';
+require_once __DIR__ . '/../TemplateEngine.php';
 require_once __DIR__ . '/../services/CartService.php';
 
 class EventsController
@@ -21,7 +19,7 @@ class EventsController
     public function listEvents(array $input): void
     {
         $events = $this->eventsService->getUpcomingEvents();
-        echo $this->eventsService->render('/var/www/WebTech/templates/events-list.php', [
+        echo $this->eventsService->render('/var/www/WebTech/templates/events-list.html', [
             'events' => $events,
             'cartCount' => $this->cartService->getCartCount()
         ]);
@@ -42,7 +40,7 @@ class EventsController
             return;
         }
 
-        echo $this->eventsService->render('/var/www/WebTech/templates/events-show.php', [
+        echo $this->eventsService->render('/var/www/WebTech/templates/events-show.html', [
             'event' => $event,
             'cartCount' => $this->cartService->getCartCount()
         ]);
