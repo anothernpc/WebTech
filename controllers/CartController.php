@@ -27,18 +27,17 @@ class CartController
 
     public function getCartData(array $input): void
     {
-        $cartService = new CartService();
+
         echo json_encode([
-            'events' => $cartService->getCartItems(),
-            'total' => $cartService->getCartTotal(),
-            'cartCount' => $cartService->getCartCount()
+            'events' => $this->cartService->getCartItems(),
+            'total' => $this->cartService->getCartTotal($this->eventsService),
+            'cartCount' => $this->cartService->getCartCount()
         ]);
     }
 
     public function removeFromCart(array $input): void
     {
-        $cartService = new CartService();
-        $cartService->removeItem((int)$input['event_id']);
+        $this->cartService->removeItem((int)$input['event_id']);
         $this->getCartData($input);
     }
 

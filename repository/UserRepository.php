@@ -22,7 +22,8 @@ class UserRepository extends Repository {
             $data['password'],
             $data['mail'],
             $data['salt'],
-            $data['token'] ?? null
+            $data['token'] ?? null,
+            $data['is_verified']
         );
     }
 
@@ -33,11 +34,12 @@ class UserRepository extends Repository {
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $users[] = [
                 'id' => $data['id'] ?? null,
-                'title' => $data['title'],
-                'date' => $data['date'],
-                'price' => (int)$data['price'],
-                'quantity' => (int)$data['quantity'],
-                'subtotal' => (int)$data['subtotal'],
+                'username' => $data['username'],
+                'password' => $data['password'],
+                'mail' => $data['mail'],
+                'salt' => $data['salt'],
+                'is_verified' => $data['is_verified'],
+                'token' => $data['token']
             ];
         }
 
@@ -49,7 +51,7 @@ class UserRepository extends Repository {
             return false;
         }
 
-        if ($entity->getId() === null) {
+        if ($entity->getId() === 0) {
             return $this->insert($entity);
         } else {
             return $this->update($entity);
@@ -60,20 +62,23 @@ class UserRepository extends Repository {
         $stmt = $this->connection->prepare("DELETE FROM users WHERE id = :id");
         return $stmt->execute([':id' => $id]);
     }
-
-    // Специфичные методы для User
     public function findByUsername(string $username): ?UserEntity {
-        $stmt = $this->connection->prepare("SELECT * FROM users WHERE user_name = :username");
+        $stmt = $this->connection->prepare("SELECT * FROM users WHERE username = :username");
         $stmt->execute([':username' => $username]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        if (!$data) {
+            return null;
+        }
+
         return new UserEntity(
             $data['id'],
-            $data['user_name'],
+            $data['username'],
             $data['password'],
             $data['mail'],
             $data['salt'],
-            $data['token'] ?? null
+            $data['is_verified'],
+            $data['token']
         );
     }
 
@@ -84,26 +89,37 @@ class UserRepository extends Repository {
 
         return new UserEntity(
             $data['id'],
-            $data['user_name'],
+            $data['username'],
             $data['password'],
             $data['mail'],
             $data['salt'],
+            $data['is_verified'],
             $data['token'] ?? null
+
         );
     }
 
     private function insert(UserEntity $user): bool {
         $stmt = $this->connection->prepare(
-            "INSERT INTO users (user_name, password, mail, salt, token) 
-             VALUES (:username, :password, :mail, :salt, :token)"
+            "INSERT INTO users (username, password, mail, salt, token, is_verified) 
+             VALUES (:username, :password, :mail, :salt, :token, :is_verified)"
         );
+        var_dump([
+            'username' => $user->getUsername(),
+            'password' => $user->getPassword(),
+            'mail' => $user->getMail(),
+            'salt' => $user->getSalt(),
+            'token' => $user->getToken(),
+            'is_verified' => $user->getIsVerified()
+        ]);
 
         $success = $stmt->execute([
-            ':username' => $user->getUserName(),
+            ':username' => $user->getUsername(),
             ':password' => $user->getPassword(),
             ':mail' => $user->getMail(),
             ':salt' => $user->getSalt(),
-            ':token' => $user->getToken()
+            ':token' => $user->getToken(),
+            ':is_verified' => $user->getIsVerified(),
         ]);
 
         if ($success) {
@@ -116,21 +132,23 @@ class UserRepository extends Repository {
     private function update(UserEntity $user): bool {
         $stmt = $this->connection->prepare(
             "UPDATE users SET 
-                user_name = :username, 
+                username = :username, 
                 password = :password, 
                 mail = :mail, 
                 salt = :salt, 
-                token = :token 
+                token = :token,
+                is_verified = :is_verified
              WHERE id = :id"
         );
 
         return $stmt->execute([
             ':id' => $user->getId(),
-            ':username' => $user->getUserName(),
+            ':username' => $user->getUsername(),
             ':password' => $user->getPassword(),
             ':mail' => $user->getMail(),
             ':salt' => $user->getSalt(),
-            ':token' => $user->getToken()
+            ':token' => $user->getToken(),
+            ':is_verified' => $user->getIsVerified()
         ]);
     }
 

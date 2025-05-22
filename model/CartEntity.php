@@ -1,78 +1,51 @@
 <?php
 
-class CartEntity
-{
+class CartEntity {
     private ?int $id;
-    private string $title;
-    private string $date;
-    private int $price;
-    private int $quantity;
-    private int $subtotal;
+    private int $userId;
+    private int $eventId;
+    private ?DateTime $addedAt;
 
-
-    public function __construct(?int $id, string $title, string $date, int $price, int $quantity, int $subtotal) {
+    public function __construct(
+        ?int $id,
+        int $userId,
+        int $eventId,
+        ?DateTime $addedAt = null
+    ) {
         $this->id = $id;
-        $this->title = $title;
-        $this->date = $date;
-        $this->price = $price;
-        $this->quantity = $quantity;
-        $this->subtotal = $subtotal;
+        $this->userId = $userId;
+        $this->eventId = $eventId;
+        $this->addedAt = $addedAt;
     }
+
     public function getId(): ?int {
         return $this->id;
     }
 
-    public function getTitle(): string {
-        return $this->title;
+    public function getUserId(): int {
+        return $this->userId;
     }
 
-    public function getDate(): string {
-        return $this->date;
+    public function getEventId(): int {
+        return $this->eventId;
     }
 
-    public function getPrice(): int {
-        return $this->price;
+    public function getAddedAt(): ?DateTime {
+        return $this->addedAt;
     }
-
-    public function getQuantity(): int {
-        return $this->quantity;
-    }
-
-    public function getSubtotal(): int {
-        return $this->subtotal;
-    }
-
-    public function setId(?int $id): void {
+    public function setId(int $id): void {
         $this->id = $id;
     }
 
-    public function setTitle(string $title): void {
-        $this->title = $title;
+    public function setUserId(int $userId): void {
+        $this->userId = $userId;
     }
 
-    public function setDate(string $date): void {
-        $this->date = $date;
-    }
-    public function setPrice(int $price): void {
-        $this->price = $price;
+    public function setEventId(int $eventId): void {
+        $this->eventId = $eventId;
     }
 
-    public function setQuantity(int $quantity): void {
-        $this->quantity = $quantity;
-    }
-
-    public function setSubtotal(int $subtotal): void {
-        $this->subtotal = $subtotal;
-    }
-
-    public function clone(): UserEntity {
-        return new UserEntity(
-            $this->id,
-            $this->title,
-            $this->date,
-            $this->price,
-            $this->quantity,
-            $this->subtotal
-        );
+    public function setAddedAt(?DateTime $addedAt): void {
+        $this->addedAt = $addedAt;
     }
 }

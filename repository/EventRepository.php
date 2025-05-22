@@ -56,7 +56,6 @@ class EventRepository extends Repository {
         return $stmt->execute([':id' => $id]);
     }
 
-    // Специфичные методы для Event
     public function findByTitle(string $title): array {
         $stmt = $this->connection->prepare("SELECT * FROM events WHERE title LIKE :title");
         $stmt->execute([':title' => "%$title%"]);

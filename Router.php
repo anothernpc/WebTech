@@ -21,10 +21,16 @@ class Router {
         $this->add('/WebTech/events', 'EventsController/listEvents');
         $this->add('/WebTech/events/view', 'EventsController/showEvent');
         $this->add('/WebTech/events/add-to-cart', 'EventsController/addToCart');
+
         $this->add('/WebTech/cart', 'CartController/viewCart');
         $this->add('/WebTech/cart/remove', 'CartController/removeFromCart');
         $this->add('/WebTech/cart/count', 'CartController/getCartCount');
         $this->add('/WebTech/cart/data', 'CartController/getCartData');
+
+        $this->add('/WebTech/auth/check', 'AuthorizationController/checkAuth');
+        $this->add('/WebTech/auth/register', 'AuthorizationController/register');
+        $this->add('/WebTech/auth/login', 'AuthorizationController/login');
+        $this->add('/WebTech/auth/logout', 'AuthorizationController/logout');
     }
 
     public function dispatch(string $requestUri): void

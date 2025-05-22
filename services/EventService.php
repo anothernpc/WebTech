@@ -13,13 +13,8 @@ class EventsService
     public function __construct(TemplateEngine $templateEngine)
     {
         $this->templateEngine = $templateEngine;
-        //УБРАТЬ ПОТОМ ПАРОЛЬ!!!!
-        /*$this->pdo = new PDO(
-            "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_DATABASE']}",
-            $_ENV['DB_USERNAME'],
-            $_ENV['DB_PASSWORD']
-        );*/
-        $this->pdo = new PDO('mysql:host=localhost;dbname=ticketmasterDB', 'root', '12345');
+        $env = parse_ini_file(__DIR__ . '/../.env');
+        $this->pdo = new PDO("mysql:host={$env['DB_HOST']};dbname={$env['DB_DATABASE']}", $env['DB_USERNAME'], $env['DB_PASSWORD']);
         $this->eventRepository = new EventRepository($this->pdo);
     }
 

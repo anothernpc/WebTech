@@ -5,8 +5,15 @@ const BASE_PATH = __DIR__;
 require BASE_PATH . '/Router.php';
 $router = new Router();
 $router->registerFileManagerRoutes();
-///$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-//$dotenv->load();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+        'cookie_lifetime' => 86400,
+        'cookie_samesite' => 'Strict',
+        'use_strict_mode' => true
+    ]);
+}
+
 try {
     $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
     $router->dispatch($requestUri);

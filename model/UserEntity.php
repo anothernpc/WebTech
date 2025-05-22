@@ -3,26 +3,28 @@
 class UserEntity
 {
     private int $id;
-    private string $userName;
+    private string $username;
     private string $password;
     private string $mail;
     private string $salt;
     private ?string $token;
+    private bool $is_verified;
 
-    public function __construct(int $id, string $userName, string $password, string $mail, string $salt, ?string $token = null) {
+    public function __construct(int $id, string $username, string $password, string $mail, string $salt, bool $is_verified, ?string $token = null) {
         $this->id = $id;
-        $this->userName = $userName;
+        $this->username = $username;
         $this->password = $password;
         $this->mail = $mail;
         $this->salt = $salt;
         $this->token = $token;
+        $this->is_verified = $is_verified;
     }
     public function getId(): int {
         return $this->id;
     }
 
-    public function getUserName(): string {
-        return $this->userName;
+    public function getUsername(): string {
+        return $this->username;
     }
 
     public function getPassword(): string {
@@ -40,13 +42,18 @@ class UserEntity
     public function getToken(): ?string {
         return $this->token;
     }
+
+    public function getIsVerified(): int {
+        return $this->is_verified;
+    }
+
     public function setId(int $id): void
     {
         $this->id = $id;
     }
 
-    public function setUserName(string $userName): void {
-        $this->userName = $userName;
+    public function setUsername(string $username): void {
+        $this->username = $username;
     }
 
     public function setPassword(string $password): void {
@@ -61,14 +68,20 @@ class UserEntity
         $this->token = $token;   
     }
 
+    public function setIsVerified(bool $is_verified): void
+    {
+        $this->is_verified = $is_verified;
+    }
+
     public function clone(): UserEntity {
         return new UserEntity(
             $this->id,
-            $this->userName,
+            $this->username,
             $this->password,
             $this->mail,
             $this->salt,
-            $this->token
+            $this->token,
+            $this->is_verified
         );
     }
 }

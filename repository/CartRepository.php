@@ -1,35 +1,39 @@
 <?php
 require_once __DIR__ . '/../model/CartEntity.php';
 require_once __DIR__ . '/../repository/Repository.php';
+
 class CartRepository extends Repository {
+    protected function getTableName(): string {
+        return 'carts';
+    }
+
     public function find(int $id): ?CartEntity {
-        $stmt = $this->connection->prepare("SELECT * FROM cart WHERE id = :id");
+        $stmt = $this->connection->prepare("SELECT * FROM carts WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return new CartEntity(
-            $data['id'] ?? null,
-            $data['title'],
-            $data['date'],
-            (int)$data['price'],
-            (int)$data['quantity'],
-            (int)$data['subtotal']
+        if (!$data) {
+            return null;
+        }
 
+        return new CartEntity(
+            $data['id'],
+            $data['user_id'],
+            $data['event_id'],
+            $data['added_at'] ? new DateTime($data['added_at']) : new DateTime()
         );
     }
 
     public function findAll(): array {
-        $stmt = $this->connection->query("SELECT * FROM cart");
+        $stmt = $this->connection->query("SELECT * FROM carts");
         $items = [];
 
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $items[] = [
                 'id' => $data['id'] ?? null,
-                'title' => $data['title'],
-                'date' => $data['date'],
-                'price' => (int)$data['price'],
-                'quantity' => (int)$data['quantity'],
-                'subtotal' => (int)$data['subtotal'],
+                'user_id' => (int)$data['user_id'],
+                'event_id' => (int)$data['event_id'],
+                'added_at' => $data['added_at']
             ];
         }
 
@@ -41,72 +45,59 @@ class CartRepository extends Repository {
             return false;
         }
 
-        return $entity->getId() === null
-            ? $this->insert($entity)
-            : $this->update($entity);
+        if ($entity->getId() === null) {
+            return $this->insert($entity);
+        }
+        return $this->update($entity);
     }
 
-    public function delete(int $id): bool {
-        $stmt = $this->connection->prepare("DELETE FROM cart WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
-    }
-
-    // Специфичные методы для Cart
-    public function findByTitle(string $title): array {
-        $stmt = $this->connection->prepare("SELECT * FROM cart WHERE title LIKE :title");
-        $stmt->execute([':title' => "%$title%"]);
+    public function findByUser(int $userId): array {
+        $stmt = $this->connection->prepare("SELECT * FROM carts WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $userId]);
         $items = [];
 
         while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $items[] = [
-                'id' => $data['id'] ?? null,
-                'title' => $data['title'],
-                'date' => $data['date'],
-                'price' => (int)$data['price'],
-                'quantity' => (int)$data['quantity'],
-                'subtotal' => (int)$data['subtotal'],
+                'id' => $data['id'],
+                'user_id' => (int)$data['user_id'],
+                'event_id' => (int)$data['event_id'],
+                'added_at' => $data['added_at']
             ];
         }
 
         return $items;
     }
 
-    public function findByDateRange(string $startDate, string $endDate): array {
+    public function findByUserAndEvent(int $userId, int $eventId): ?CartEntity {
         $stmt = $this->connection->prepare(
-            "SELECT * FROM cart WHERE date BETWEEN :start_date AND :end_date"
+            "SELECT * FROM carts WHERE user_id = :user_id AND event_id = :event_id"
         );
         $stmt->execute([
-            ':start_date' => $startDate,
-            ':end_date' => $endDate
+            ':user_id' => $userId,
+            ':event_id' => $eventId
         ]);
-        $items = [];
-
-        while ($data = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $items[] = [
-                'id' => $data['id'] ?? null,
-                'title' => $data['title'],
-                'date' => $data['date'],
-                'price' => (int)$data['price'],
-                'quantity' => (int)$data['quantity'],
-                'subtotal' => (int)$data['subtotal'],
-            ];
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$data) {
+            return null;
         }
-
-        return $items;
+        return new CartEntity(
+            $data['id'],
+            $data['user_id'],
+            $data['event_id'],
+            $data['added_at'] ? new DateTime($data['added_at']) : new DateTime()
+        );
     }
 
     private function insert(CartEntity $cart): bool {
         $stmt = $this->connection->prepare(
-            "INSERT INTO cart (title, date, price, quantity, subtotal) 
-             VALUES (:title, :date, :price, :quantity, :subtotal)"
+            "INSERT INTO carts (user_id, event_id, added_at) 
+             VALUES (:user_id, :event_id, :added_at)"
         );
 
         $success = $stmt->execute([
-            ':title' => $cart->getTitle(),
-            ':date' => $cart->getDate(),
-            ':price' => $cart->getPrice(),
-            ':quantity' => $cart->getQuantity(),
-            ':subtotal' => $cart->getSubtotal()
+            ':user_id' => $cart->getUserId(),
+            ':event_id' => $cart->getEventId(),
+            ':added_at' => $cart->getAddedAt()->format('Y-m-d H:i:s')
         ]);
 
         if ($success) {
@@ -118,26 +109,24 @@ class CartRepository extends Repository {
 
     private function update(CartEntity $cart): bool {
         $stmt = $this->connection->prepare(
-            "UPDATE cart SET 
-                title = :title,
-                date = :date,
-                price = :price,
-                quantity = :quantity,
-                subtotal = :subtotal
+            "UPDATE carts SET 
+                user_id = :user_id,
+                event_id = :event_id,
+                added_at = :added_at
              WHERE id = :id"
         );
 
         return $stmt->execute([
             ':id' => $cart->getId(),
-            ':title' => $cart->getTitle(),
-            ':date' => $cart->getDate(),
-            ':price' => $cart->getPrice(),
-            ':quantity' => $cart->getQuantity(),
-            ':subtotal' => $cart->getSubtotal()
+            ':user_id' => $cart->getUserId(),
+            ':event_id' => $cart->getEventId(),
+            ':added_at' => $cart->getAddedAt()->format('Y-m-d H:i:s')
         ]);
     }
 
-    protected function getTableName(): string {
-        return 'cart';
+    public function delete(int $id): bool {
+        $stmt = $this->connection->prepare("DELETE FROM carts WHERE id = :id");
+        return $stmt->execute([':id' => $id]);
     }
+
 }

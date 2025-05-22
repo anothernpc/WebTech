@@ -1,95 +1,123 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../model/CartEntity.php';
 require_once __DIR__ . '/../repository/CartRepository.php';
+require_once __DIR__ . '/../services/EventService.php';
 
 class CartService
 {
-    private EventsService $eventsService;
     private CartRepository $cartRepository;
 
     public function __construct()
     {
-        $this->eventsService = new EventsService(new TemplateEngine());
-        $pdo = new PDO(
-            "mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_DATABASE']}",
-            $_ENV['DB_USERNAME'],
-            $_ENV['DB_PASSWORD']
-        );
+        $env = parse_ini_file(__DIR__ . '/../.env');
+        $pdo = new PDO("mysql:host={$env['DB_HOST']};dbname={$env['DB_DATABASE']}", $env['DB_USERNAME'], $env['DB_PASSWORD']);
         $this->cartRepository = new CartRepository($pdo);
     }
 
     public function addToCart(int $eventId, int $quantity = 1): bool
     {
-        $event = $this->eventsService->getEvent($eventId);
-        if (!$event) {
+        if (!isset($_SESSION['user'])) {
             return false;
         }
-
-        $existingItem = $this->cartRepository->findByTitle($event['title']);
-        if ($existingItem) {
-            $cartEntity = new CartEntity(
-                $existingItem[0]['id'],
-                $existingItem[0]['title'],
-                $existingItem[0]['date'],
-                (int)$existingItem[0]['price'],
-                (int)$existingItem[0]['quantity'] + $quantity,
-                (int)$existingItem[0]['price'] * ((int)$existingItem[0]['quantity'] + $quantity)
-            );
-            return $this->cartRepository->save($cartEntity);
-        }
-
-        $cartEntity = new CartEntity(
+        $cartItem = new CartEntity(
             null,
-            $event['title'],
-            $event['date'],
-            (int)$event['price'],
-            $quantity,
-            (int)$event['price'] * $quantity
+            $_SESSION['user']['id'],
+            $eventId,
+            new DateTime()
         );
 
-        return $this->cartRepository->save($cartEntity);
+        return $this->cartRepository->save($cartItem);
     }
 
     public function removeItem(int $eventId): bool
     {
-        $event = $this->eventsService->getEvent($eventId);
-        if (!$event) {
+        if ($_SESSION['user']['id'] === null) {
             return false;
         }
 
-        return $this->cartRepository->delete($event['id']);
+        $item = $this->cartRepository->findByUserAndEvent($_SESSION['user']['id'], $eventId);
+        if ($item && $item->getId()) {
+            return $this->cartRepository->delete($item->getId());
+        }
+
+        return false;
     }
 
-    public function getCartItems(): array
+    public function getCartItems(EventsService $eventsService = null): array
     {
-        return $this->cartRepository->findAll();
+        if ($_SESSION['user']['id'] === null) {
+            return [];
+        }
+
+        $cartItems = $this->cartRepository->findByUser($_SESSION['user']['id']);
+
+        if ($eventsService === null) {
+            return $cartItems;
+        }
+
+        $enrichedItems = [];
+        foreach ($cartItems as $item) {
+            $event = $eventsService->getEvent($item['event_id']);
+            if ($event) {
+                $enrichedItems[] = [
+                    'id' => $item['id'],
+                    'event_id' => $item['event_id'],
+                    'title' => $event['title'],
+                    'date' => $event['date'],
+                    'price' => $event['price'],
+                    'quantity' => 1,
+                    'subtotal' => $event['price'],
+                    'added_at' => $item['added_at']
+                ];
+            }
+        }
+
+        return $enrichedItems;
     }
 
-    public function getCartTotal(): float
+    public function getCartTotal(EventsService $eventsService = null): float
     {
-        $items = $this->cartRepository->findAll();
-        return array_reduce($items,
-            fn($total, $item) => $total + $item['subtotal'],
-            0.0
-        );
+        $items = $this->getCartItems($eventsService);
+        $total = 0.0;
+
+        foreach ($items as $item) {
+            $total += $item['price'] * ($item['quantity'] ?? 1);
+        }
+
+        return $total;
     }
 
     public function getCartCount(): int
     {
-        $items = $this->cartRepository->findAll();
-        return array_reduce($items,
-            fn($count, $item) => $count + $item['quantity'],
-            0
-        );
+        if (!isset($_SESSION['user'])) {
+            return 0;
+        }
+
+        $items = $this->cartRepository->findByUser($_SESSION['user']['id']);
+        return count($items);
     }
 
-    public function clearCart(): void
+    public function clearCart(): bool
     {
-        $items = $this->cartRepository->findAll();
-        foreach ($items as $item) {
-            $this->cartRepository->delete($item['id']);
+        if ($_SESSION['user']['id'] === null) {
+            return false;
         }
+
+        $items = $this->cartRepository->findByUser($_SESSION['user']['id']);
+        $success = true;
+
+        foreach ($items as $item) {
+            if (!$this->cartRepository->delete($item['id'])) {
+                $success = false;
+            }
+        }
+
+        return $success;
+    }
+
+    private function getCurrentUserId(): ?int
+    {
+        return $_SESSION['user_id'] ?? null;
     }
 }
