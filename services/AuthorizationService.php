@@ -56,6 +56,58 @@ class AuthorizationService {
         return true;
     }
 
+    public function sendLoginMail(MailService $mailService, string $username): bool {
+        $user = $this->userRepository->findByUsername($username);
+
+        if (!$user) {
+            throw new Exception('User not found');
+        }
+
+        return $mailService->sendLoginMail($user);
+    }
+    public function verifyEmail(MailService $mailService, string $username, string $email): array {
+        $user = $this->userRepository->findByUsername($username);
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'User not found'];
+        }
+
+        if ($user->getMail() !== $email) {
+            return ['success' => false, 'message' => 'Email does not match'];
+        }
+
+        $emailSent = $mailService->sendVerificationMessage($user);
+
+        return [
+            'success' => $emailSent,
+            'message' => $emailSent
+                ? 'Verification email sent'
+                : 'Failed to send verification email'
+        ];
+    }
+
+    public function continueVerification(int $userId): array
+    {
+        $user = $this->userRepository->find($userId);
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'Invalid verification link'];
+        }
+
+        if ($user->getIsVerified()) {
+            return ['success' => false, 'message' => 'Email already verified'];
+        }
+
+        $user->setIsVerified(true);
+
+        return [
+            'success' => $this->userRepository->save($user),
+            'message' => $user->getIsVerified()
+                ? 'Email successfully verified'
+                : 'Verification failed'
+        ];
+    }
+
     public function loginByToken(string $token): bool {
         $user = $this->userRepository->findByToken($token);
         if (!$user) {

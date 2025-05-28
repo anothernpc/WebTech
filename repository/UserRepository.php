@@ -18,12 +18,12 @@ class UserRepository extends Repository {
 
         return new UserEntity(
             $data['id'],
-            $data['user_name'],
+            $data['username'],
             $data['password'],
             $data['mail'],
             $data['salt'],
-            $data['token'] ?? null,
-            $data['is_verified']
+            $data['is_verified'] ?? null,
+            $data['token'] ?? null
         );
     }
 
@@ -104,14 +104,6 @@ class UserRepository extends Repository {
             "INSERT INTO users (username, password, mail, salt, token, is_verified) 
              VALUES (:username, :password, :mail, :salt, :token, :is_verified)"
         );
-        var_dump([
-            'username' => $user->getUsername(),
-            'password' => $user->getPassword(),
-            'mail' => $user->getMail(),
-            'salt' => $user->getSalt(),
-            'token' => $user->getToken(),
-            'is_verified' => $user->getIsVerified()
-        ]);
 
         $success = $stmt->execute([
             ':username' => $user->getUsername(),
@@ -150,6 +142,14 @@ class UserRepository extends Repository {
             ':token' => $user->getToken(),
             ':is_verified' => $user->getIsVerified()
         ]);
+    }
+
+    public function verifyUser(int $userId): bool
+    {
+        $stmt = $this->connection->prepare(
+            "UPDATE users SET is_verified = 1 WHERE id = :id"
+        );
+        return $stmt->execute([':id' => $userId]);
     }
 
 }

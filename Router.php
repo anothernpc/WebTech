@@ -31,6 +31,10 @@ class Router {
         $this->add('/WebTech/auth/register', 'AuthorizationController/register');
         $this->add('/WebTech/auth/login', 'AuthorizationController/login');
         $this->add('/WebTech/auth/logout', 'AuthorizationController/logout');
+
+        $this->add('/WebTech/auth/verifyEmail', 'AuthorizationController/verifyEmail');
+        $this->add('/WebTech/auth/continueVerification', 'AuthorizationController/continueVerification');
+        $this->add('/WebTech/auth/sendLoginMail', 'AuthorizationController/sendLoginMail');
     }
 
     public function dispatch(string $requestUri): void

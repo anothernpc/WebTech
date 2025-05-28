@@ -158,21 +158,29 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         formData.append('password', password);
         formData.append('remember_me', rememberMe ? '1' : '0');
 
-        const response = await fetch('/WebTech/auth/login', {
+        const loginResponse = await fetch('/WebTech/auth/login', {
             method: 'POST',
             body: formData
         });
 
-        if (!response.ok) {
-            throw new Error('Network error');
-        }
+        const loginResult = await loginResponse.json();
 
-        const result = await response.json();
+        if (loginResult.success) {
+            try {
+                await fetch('/WebTech/auth/sendLoginMail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username })
+                });
+            } catch (notificationError) {
+                console.error('Error sending message:', notificationError);
+            }
 
-        if (result.success) {
             window.location.href = '/WebTech/view/html/index.html';
         } else {
-            showError(errorElement, result.message || 'Failed to login');
+            showError(errorElement, loginResult.message || 'Failed to login');
         }
     } catch (error) {
         showError(errorElement, 'Error connecting to server');
@@ -204,19 +212,33 @@ document.getElementById('registerForm').addEventListener('submit', async functio
         formData.append('username', username);
         formData.append('email', email);
         formData.append('password', password);
+
         const response = await fetch('/WebTech/auth/register', {
             method: 'POST',
             body: formData
         });
 
-        if (!response.ok) throw new Error('Network error');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const result = await response.json();
 
         if (result.success) {
-            showError('register-error', 'Successful registration!', 'success');
+            try {
+                await fetch('/WebTech/auth/verifyEmail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email })
+                });
+            } catch (emailError) {
+                console.error('Error sending verification mail:', emailError);
+            }
+
+            showError('register-error', 'Successful registration! Check your email for verification.', 'success');
             document.getElementById('registerForm').reset();
-            // Переключение на форму входа
             document.getElementById('register-form').classList.remove('active');
             document.getElementById('login-form').classList.add('active');
         } else {
@@ -244,9 +266,9 @@ async function checkAuth() {
         const response = await fetch('/WebTech/auth/check');
         const result = await response.json();
 
-        if (result.authenticated) {
+        /*if (result.authenticated) {
             window.location.href = '/WebTech/view/html/index.html';
-        }
+        }*/
     } catch (error) {
         console.error('Auth check error:', error);
     }
